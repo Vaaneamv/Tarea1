@@ -1,29 +1,36 @@
 from flask import Flask
+import requests
+import redis
+from conexionredis import redis1, redis2, redis3  # Importar las variables redis1, redis2 y redis3 desde el archivo conexionredis
 
 app = Flask(__name__)
-#Comandos docker
-# Construye la imagen de Docker
-#docker build -t my-flask-app .
 
-# Ejecuta la imagen en un contenedor
-#docker run -p 5001:5000 my-flask-app
-
-#Borra todas las imagenes, contenedores y volumenes de docker
-#docker system prune -a
-
-@app.route('/returnRedis/<int:id>')
+@app.route('/returninformación/<string:id>')
 def index(id):
-    if 4 <= id <= 275:
-        return "redis1 "
-    elif 276 <= id <= 581:
-        return "redis2"
+    # Verificar si la consulta está en caché
+    if 4 <= int(id) <= 275:
+        if redis1.exists(id):
+            return redis1.get(id)
+    elif 276 <= int(id) <= 581:
+        if redis2.exists(id):
+            return redis2.get(id)
+    elif 582 <= int(id) <= 1000:
+        if redis3.exists(id):
+            return redis3.get(id)
     else:
-        return "redis3"
-    
-    #verificar si esta en cache
-        #si esta en cache retornar informacion
-        #else preguntar a la api la informacion y luego almacenar en cache y responder con informacion https://restcountries.com/v3.1/alpha/id
+        # Si la consulta no está en caché, obtener la información de la API
+        response = requests.get(f'https://restcountries.com/v3.1/alpha/{id}')
+        data = response.json()
+
+        # Almacenar la información en caché
+        if 4 <= int(data['id']) <= 275:
+            redis1.set(id, data)
+        elif 276 <= int(data['id']) <= 581:
+            redis2.set(id, data)
+        else:
+            redis3.set(id, data)
+
+        return data
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000)
-

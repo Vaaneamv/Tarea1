@@ -1,7 +1,6 @@
 from flask import Flask
 import requests
 import redis
-from conexionredis import redis1, redis2, redis3  # Importar las variables redis1, redis2 y redis3 desde el archivo conexionredis
 
 app = Flask(__name__)
 
@@ -31,6 +30,9 @@ def index(id):
             redis3.set(id, data)
 
         return data
+ 
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000)
+       
+

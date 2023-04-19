@@ -14,7 +14,7 @@ app = Flask(__name__)
 @app.route('/returnRedis/<int:id>')
 def index(id):
     if 4 <= id <= 275:
-        return "redis1 hola"
+        return "redis1 "
     elif 276 <= id <= 581:
         return "redis2"
     else:
